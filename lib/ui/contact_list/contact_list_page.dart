@@ -12,7 +12,7 @@ class ContactListPage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.purple,
-          title: Text('Contact'),
+          title: Text('Contact')
         ),
         body: ListView.builder(
           itemCount: 10,
