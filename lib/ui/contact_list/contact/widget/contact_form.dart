@@ -1,4 +1,7 @@
+import 'package:contact_app/data/contact.dart';
+import 'package:contact_app/ui/contact_list/model/contacts_model.dart';
 import 'package:flutter/material.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 class ContactForm extends StatefulWidget {
   const ContactForm({super.key});
@@ -64,10 +67,7 @@ class _ContactFormState extends State<ContactForm> {
                 backgroundColor: Colors.greenAccent,
               ),
               onPressed: () {
-                if (_fromKey.currentState!.validate()) {
-                  _fromKey.currentState!.save();
-                  print(_name + ' ' + _email + ' ' + _phoneNumber);
-                }
+                onSavedContactButtonPressed();
               },
               child: const Row(
                 children: [
@@ -114,5 +114,17 @@ class _ContactFormState extends State<ContactForm> {
       return 'Enter a phone number';
     }
     return null;
+  }
+
+  void onSavedContactButtonPressed() {
+    if (_fromKey.currentState!.validate()) {
+      _fromKey.currentState!.save();
+      final newContact = Contact(
+        name: _name,
+        email: _email,
+        phoneNumber: _phoneNumber,
+      );
+      ScopedModel.of<ContactModel>(context).addContact(newContact);
+    }
   }
 }

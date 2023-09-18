@@ -1,9 +1,7 @@
-import 'package:contact_app/data/contact.dart';
 import 'package:contact_app/ui/contact_list/contact/contact_create_page.dart';
 import 'package:contact_app/ui/contact_list/model/contacts_model.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
-import 'ui/contact_list/contact_list_page.dart';
 
 void main() {
   runApp(const MyApp());

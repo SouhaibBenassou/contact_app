@@ -15,6 +15,11 @@ class ContactModel extends Model {
 // from different classes
   List<Contact> get contacts => _contacts;
 
+  void addContact(Contact contact) {
+    _contacts.add(contact);
+    notifyListeners();
+  }
+
   void changeFavoriteStatus(int index) {
     _contacts[index].isFavorite = !_contacts[index].isFavorite;
     _contacts.sort((a, b) {
