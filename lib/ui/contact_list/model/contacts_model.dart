@@ -5,7 +5,7 @@ import 'package:scoped_model/scoped_model.dart';
 class ContactModel extends Model {
   // underscore acts like  private access modifier
   List<Contact> _contacts = List.generate(
-      50,
+      5,
       (index) => Contact(
           name: faker.person.firstName() + '' + faker.person.lastName(),
           email: faker.internet.freeEmail(),
@@ -17,6 +17,16 @@ class ContactModel extends Model {
 
   void addContact(Contact contact) {
     _contacts.add(contact);
+    notifyListeners();
+  }
+
+  void updateContact(Contact contact, int contactIndex) {
+    _contacts[contactIndex] = contact;
+    notifyListeners();
+  }
+
+  void deleteContact(int index) {
+    _contacts.removeAt(index);
     notifyListeners();
   }
 

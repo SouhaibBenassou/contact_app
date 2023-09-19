@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class ContactForm extends StatefulWidget {
-  const ContactForm({super.key});
+  const ContactForm({this.editedContact, this.editedContactIndex, super.key});
 
+  final Contact? editedContact;
+  final int? editedContactIndex;
   @override
   State<ContactForm> createState() => _ContactFormState();
 }
@@ -15,6 +17,7 @@ class _ContactFormState extends State<ContactForm> {
   String _name = '';
   String _email = '';
   String _phoneNumber = '';
+  bool get isEditedMode => widget.editedContact != null;
 
   @override
   Widget build(BuildContext context) {
@@ -25,10 +28,12 @@ class _ContactFormState extends State<ContactForm> {
           const SizedBox(
             height: 8,
           ),
+          _bulidContactPicture(),
           const SizedBox(
             height: 8,
           ),
           TextFormField(
+            initialValue: widget.editedContact?.name,
             validator: _validateName,
             // The validator receives the text that the user has entered.
             onSaved: (value) => _name = value ?? '',
@@ -41,6 +46,7 @@ class _ContactFormState extends State<ContactForm> {
             height: 8,
           ),
           TextFormField(
+            initialValue: widget.editedContact?.email,
             validator: _validateEmail,
             onSaved: (value) => _email = value ?? '',
             decoration: InputDecoration(
@@ -52,6 +58,7 @@ class _ContactFormState extends State<ContactForm> {
             height: 8,
           ),
           TextFormField(
+            initialValue: widget.editedContact?.phoneNumber,
             validator: _validatePhoneNumber,
             onSaved: (value) => _phoneNumber = value ?? '',
             decoration: InputDecoration(
@@ -67,7 +74,7 @@ class _ContactFormState extends State<ContactForm> {
                 backgroundColor: Colors.greenAccent,
               ),
               onPressed: () {
-                onSavedContactButtonPressed();
+                _onSavedContactButtonPressed();
               },
               child: const Row(
                 children: [
@@ -86,6 +93,28 @@ class _ContactFormState extends State<ContactForm> {
         ],
       ),
     );
+  }
+
+  Widget _bulidContactPicture() {
+    final halfScrennDimeter = MediaQuery.of(context).size.width / 2;
+    return CircleAvatar(
+      radius: halfScrennDimeter / 2,
+      child: _bulidCirleAvatar(halfScrennDimeter),
+    );
+  }
+
+  Widget _bulidCirleAvatar(double halfScrennDimeter) {
+    if (isEditedMode) {
+      return Text(
+        widget.editedContact!.name[2],
+        style: TextStyle(fontSize: halfScrennDimeter / 2),
+      );
+    } else {
+      return Icon(
+        Icons.person,
+        size: halfScrennDimeter / 2,
+      );
+    }
   }
 
   String? _validateName(String? value) {
@@ -107,24 +136,37 @@ class _ContactFormState extends State<ContactForm> {
   }
 
   String? _validatePhoneNumber(String? value) {
-    final emailRegex = RegExp(r"^(?:[+0]9)?[0-9]{10}$");
+    final phoneNumberRegex = RegExp(
+        r'^[0-9-()+\s]+$'); // Matches digits, dashes, parentheses, plus signs, and spaces
     if (value!.isEmpty) {
       return 'Enter a phone number';
-    } else if (!emailRegex.hasMatch(value)) {
-      return 'Enter a phone number';
+    } else if (!phoneNumberRegex.hasMatch(value)) {
+      return 'Enter a valid phone number';
     }
     return null;
   }
 
-  void onSavedContactButtonPressed() {
+  void _onSavedContactButtonPressed() {
     if (_fromKey.currentState!.validate()) {
       _fromKey.currentState!.save();
-      final newContact = Contact(
+      final newOrEditedContact = Contact(
         name: _name,
         email: _email,
         phoneNumber: _phoneNumber,
+        isFavorite: widget.editedContact?.isFavorite ?? false,
       );
-      ScopedModel.of<ContactModel>(context).addContact(newContact);
+
+      if (isEditedMode) {
+        if (widget.editedContactIndex != null) {
+          // Determine the edited contact index from the widget property
+          final editedIndex = widget.editedContactIndex!;
+          ScopedModel.of<ContactModel>(context)
+              .updateContact(newOrEditedContact, editedIndex);
+        }
+      } else {
+        ScopedModel.of<ContactModel>(context).addContact(newOrEditedContact);
+      }
+      Navigator.of(context).pop();
     }
   }
 }
